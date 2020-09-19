@@ -1,15 +1,14 @@
 package com.example.shorten.services;
 
+import com.example.shorten.dao.MongoDAO;
 import com.example.shorten.model.Link;
 import com.example.shorten.repos.LinkRepo;
 import com.github.javafaker.Faker;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.net.URI;
 
 
 @Service
@@ -22,19 +21,23 @@ public class DBService {
     Faker faker;
 
     @Autowired
-    ShortLinkService shortLinkService;
+    KGSService shortLinkService;
 
-    @Transactional
-    public void saveLink(String linkString) {
-        Link builtLink = Link.builder().shortLink(shortLinkService.getShortLink()).longLink(linkString)
+    @Autowired
+    MongoDAO dao;
+
+
+
+    @SneakyThrows
+    public String saveLink(String linkString) {
+        String shortLink = shortLinkService.getShortLink();
+        Link builtLink = Link.builder().shortLink(shortLink).longLink(linkString)
                 .creatorName(faker.twinPeaks().character()).redirectCount(6).build();
         repo.save(builtLink);
-
+        URI uri = new URI("http://localhost:8080/");
+        return uri.resolve(shortLink).toString();
     }
 
-    @Transactional
-    public List<Link> findAllLinks() {
-        return repo.findAll();
-    }
+
 
 }

@@ -20,7 +20,7 @@ public class RedirectController {
     @GetMapping("/{shortLink}")
     public RedirectView redirectWithUsingRedirectView(
             RedirectAttributes attributes, @PathVariable String shortLink) {
-        String substring = shortLink.substring(shortLink.length() - 4, shortLink.length());
+        String substring = shortLink.substring(shortLink.lastIndexOf("/") + 1);
         String longLink = service.getLongLink(substring);
         return new RedirectView(longLink);
     }
